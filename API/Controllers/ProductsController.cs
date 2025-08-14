@@ -1,66 +1,88 @@
 using Core.Entities;
-using Infrastructure.Data;
+using Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class ProductsController : ControllerBase
+public class ProductsController(IProductRepository repo) : ControllerBase
 {
-    private readonly StoreContext _storeContext;
-        private readonly ILogger<ProductsController> _logger;
-
- public ProductsController(StoreContext storeContext, ILogger<ProductsController> logger)
-    {
-        _storeContext = storeContext;
-        _logger = logger;
-    }
+    // GET: api/products?brand=...&type=...&sort=priceAsc|priceDesc|alpha
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
-        => await _storeContext.Products.ToListAsync();
+    public async Task<ActionResult<IEnumerable<Product>>> GetProducts(
+        [FromQuery] string? brand,
+        [FromQuery] string? type,
+        [FromQuery] string? sort)
+    {
+        var products = await repo.GetProductsAsync(brand, type, sort);
+        return Ok(products);
+    }
 
+    // GET: api/products/5
     [HttpGet("{id:int}")]
     public async Task<ActionResult<Product>> GetProduct(int id)
     {
-        var product = await _storeContext.Products.FindAsync(id);
-        if (product == null) return NotFound();
-        return product;
+        var product = await repo.GetProductByIdAsync(id);
+        if (product is null) return NotFound();
+        return Ok(product);
     }
 
+    // POST: api/products
     [HttpPost]
-    public async Task<ActionResult<Product>> CreateProduct(Product product)
+    public async Task<ActionResult<Product>> CreateProduct([FromBody] Product product)
     {
-        _storeContext.Products.Add(product);
-        await _storeContext.SaveChangesAsync();
+        repo.AddProduct(product);
+
+        var saved = await repo.SaveChangesAsync();
+        if (!saved) return Problem("Failed to save the product.");
+
+        // Returns 201 with a Location header pointing to GET /api/products/{id}
         return CreatedAtAction(nameof(GetProduct), new { id = product.Id }, product);
     }
 
+    // PUT: api/products/5
     [HttpPut("{id:int}")]
-    public async Task<ActionResult> UpdateProduct(int id, Product product)
+    public async Task<IActionResult> UpdateProduct(int id, [FromBody] Product product)
     {
-        if (product.Id != id || !ProductExists(id))
-            return BadRequest("Cannot update this product");
+        if (product.Id != id)
+            return BadRequest("Route id and body id must match.");
 
-        _storeContext.Entry(product).State = EntityState.Modified;
-        Console.WriteLine($"PUT {id}: Name='{product.Name}', Brand='{product.Brand}', IdInBody={product.Id}");
-                _logger.LogInformation("PUT {Id}: Name={Name}, Brand={Brand}", id, product.Name, product.Brand);
+        // Prefer checking via repository to avoid relying on a possibly-mismatched method name.
+        var existing = await repo.GetProductByIdAsync(id);
+        if (existing is null) return NotFound();
 
-        await _storeContext.SaveChangesAsync();
+        // If you're tracking entities, you can map fields; or trust incoming 'product' and update.
+        repo.UpdateProduct(product);
+
+        var saved = await repo.SaveChangesAsync();
+        if (!saved) return Problem("Failed to update the product.");
+
         return NoContent();
     }
 
+    // DELETE: api/products/5
     [HttpDelete("{id:int}")]
-    public async Task<ActionResult> DeleteProduct(int id)
+    public async Task<IActionResult> DeleteProduct(int id)
     {
-        var product = await _storeContext.Products.FindAsync(id);
+        var product = await repo.GetProductByIdAsync(id);
         if (product is null) return NotFound();
 
-        _storeContext.Products.Remove(product);
-        await _storeContext.SaveChangesAsync();
+        repo.DeleteProduct(product);
+
+        var saved = await repo.SaveChangesAsync();
+        if (!saved) return Problem("Failed to delete the product.");
+
         return NoContent();
     }
 
-    private bool ProductExists(int id) => _storeContext.Products.Any(p => p.Id == id);
+    // GET: api/products/brands
+    [HttpGet("brands")]
+    public async Task<ActionResult<IReadOnlyList<string>>> GetBrands()
+        => Ok(await repo.GetBrandAsync());
+
+    // GET: api/products/types
+    [HttpGet("types")]
+    public async Task<ActionResult<IReadOnlyList<string>>> GetTypes()
+        => Ok(await repo.GetTypesAsync());
 }
