@@ -1,18 +1,27 @@
+using Core.Entities;
 using Microsoft.EntityFrameworkCore;
-using System.Reflection;
-
-namespace Infrastructure.Data;
 
 public class StoreContext : DbContext
 {
     public StoreContext(DbContextOptions<StoreContext> options) : base(options) { }
 
-    public DbSet<Core.Entities.Product> Products { get; set; } = null!;
+    public DbSet<Product> Products => Set<Product>();
+    public DbSet<ProductBrand> ProductBrands => Set<ProductBrand>();
+    public DbSet<ProductType> ProductTypes => Set<ProductType>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-        // No direct reference to ProductConfiguration; picks up all IEntityTypeConfiguration<T> in Infrastructure
-        modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+
+        // Optional: explicit relationships (EF can infer these)
+        modelBuilder.Entity<Product>()
+            .HasOne(p => p.ProductBrand)
+            .WithMany(b => b.Products)
+            .HasForeignKey(p => p.ProductBrandId);
+
+        modelBuilder.Entity<Product>()
+            .HasOne(p => p.ProductType)
+            .WithMany(t => t.Products)
+            .HasForeignKey(p => p.ProductTypeId);
     }
 }

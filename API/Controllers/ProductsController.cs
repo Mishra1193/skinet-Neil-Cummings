@@ -1,88 +1,71 @@
+using API.RequestHelpers;
 using Core.Entities;
 using Core.Interfaces;
+using Core.Specifications;
+using Core.Specifications.Products;
 using Microsoft.AspNetCore.Mvc;
 
-namespace API.Controllers;
-
-[ApiController]
-[Route("api/[controller]")]
-public class ProductsController(IProductRepository repo) : ControllerBase
+namespace API.Controllers
 {
-    // GET: api/products?brand=...&type=...&sort=priceAsc|priceDesc|alpha
-    [HttpGet]
-    public async Task<ActionResult<IEnumerable<Product>>> GetProducts(
-        [FromQuery] string? brand,
-        [FromQuery] string? type,
-        [FromQuery] string? sort)
+    [ApiController]
+    [Route("api/[controller]")]
+    public class ProductsController : ControllerBase
     {
-        var products = await repo.GetProductsAsync(brand, type, sort);
-        return Ok(products);
+        private readonly IGenericRepository<Product> _repo;
+
+        public ProductsController(IGenericRepository<Product> repo)
+        {
+            _repo = repo;
+        }
+
+        // GET: api/products
+        // e.g. /api/products?brand=Angular&type=Boards&sort=priceDesc&pageIndex=2&pageSize=6&search=board
+        [HttpGet]
+        public async Task<ActionResult<Pagination<Product>>> GetProducts([FromQuery] ProductSpecParams specParams)
+        {
+            // list spec (filters + includes + sort + paging)
+            var spec = new ProductsWithTypesAndBrandsSpec(specParams);
+
+            // count spec (filters only, no paging)
+            var countSpec = new ProductsWithFiltersForCountSpec(specParams);
+
+            var totalItems = await _repo.CountAsync(countSpec);
+            var products   = await _repo.ListAsync(spec);
+
+            var pagination = new Pagination<Product>(
+                pageIndex: specParams.PageIndex,
+                pageSize:  specParams.PageSize,
+                count:     totalItems,
+                data:      products
+            );
+
+            return Ok(pagination);
+        }
+
+        // GET: api/products/5
+        [HttpGet("{id:int}")]
+        public async Task<ActionResult<Product>> GetProduct(int id)
+        {
+            var spec = new ProductsWithTypesAndBrandsSpec(id);
+            var product = await _repo.GetEntityWithSpecAsync(spec);
+            if (product is null) return NotFound();
+            return Ok(product);
+        }
+
+        // GET: api/products/brands
+        [HttpGet("brands")]
+        public async Task<ActionResult<IReadOnlyList<string>>> GetBrands()
+        {
+            var brands = await _repo.ListAsync(new ProductBrandsSpec());
+            return Ok(brands);
+        }
+
+        // GET: api/products/types
+        [HttpGet("types")]
+        public async Task<ActionResult<IReadOnlyList<string>>> GetTypes()
+        {
+            var types = await _repo.ListAsync(new ProductTypesSpec());
+            return Ok(types);
+        }
     }
-
-    // GET: api/products/5
-    [HttpGet("{id:int}")]
-    public async Task<ActionResult<Product>> GetProduct(int id)
-    {
-        var product = await repo.GetProductByIdAsync(id);
-        if (product is null) return NotFound();
-        return Ok(product);
-    }
-
-    // POST: api/products
-    [HttpPost]
-    public async Task<ActionResult<Product>> CreateProduct([FromBody] Product product)
-    {
-        repo.AddProduct(product);
-
-        var saved = await repo.SaveChangesAsync();
-        if (!saved) return Problem("Failed to save the product.");
-
-        // Returns 201 with a Location header pointing to GET /api/products/{id}
-        return CreatedAtAction(nameof(GetProduct), new { id = product.Id }, product);
-    }
-
-    // PUT: api/products/5
-    [HttpPut("{id:int}")]
-    public async Task<IActionResult> UpdateProduct(int id, [FromBody] Product product)
-    {
-        if (product.Id != id)
-            return BadRequest("Route id and body id must match.");
-
-        // Prefer checking via repository to avoid relying on a possibly-mismatched method name.
-        var existing = await repo.GetProductByIdAsync(id);
-        if (existing is null) return NotFound();
-
-        // If you're tracking entities, you can map fields; or trust incoming 'product' and update.
-        repo.UpdateProduct(product);
-
-        var saved = await repo.SaveChangesAsync();
-        if (!saved) return Problem("Failed to update the product.");
-
-        return NoContent();
-    }
-
-    // DELETE: api/products/5
-    [HttpDelete("{id:int}")]
-    public async Task<IActionResult> DeleteProduct(int id)
-    {
-        var product = await repo.GetProductByIdAsync(id);
-        if (product is null) return NotFound();
-
-        repo.DeleteProduct(product);
-
-        var saved = await repo.SaveChangesAsync();
-        if (!saved) return Problem("Failed to delete the product.");
-
-        return NoContent();
-    }
-
-    // GET: api/products/brands
-    [HttpGet("brands")]
-    public async Task<ActionResult<IReadOnlyList<string>>> GetBrands()
-        => Ok(await repo.GetBrandAsync());
-
-    // GET: api/products/types
-    [HttpGet("types")]
-    public async Task<ActionResult<IReadOnlyList<string>>> GetTypes()
-        => Ok(await repo.GetTypesAsync());
 }
