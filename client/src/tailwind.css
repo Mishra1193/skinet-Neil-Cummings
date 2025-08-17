@@ -1,3 +1,8 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Keep content centered and not edge-to-edge */
+.container {
+  @apply mx-auto max-w-screen-2xl px-6;
+}

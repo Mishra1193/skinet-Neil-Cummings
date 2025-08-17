@@ -1,0 +1,36 @@
+<!-- HEADER WRAPPER -->
+<header class="border-b p-3 w-full">
+  <!-- LAYOUT CONTAINER -->
+  <div class="flex items-center justify-between max-w-6xl mx-auto px-4">
+    <!-- LEFT: APP LOGO -->
+    <img
+      src="/images/shujyoti-mart-logo.png"
+      alt="app logo"
+      class="block h-12 md:h-14 w-auto object-contain"
+    />
+
+    <!-- MIDDLE: PRIMARY NAV LINKS -->
+    <nav class="flex items-center gap-6 uppercase tracking-wide text-lg">
+      <a>Home</a>
+      <a>Shop</a>
+      <a>Contact</a>
+    </nav>
+
+    <!-- RIGHT: CART + AUTH BUTTONS -->
+    <div class="flex items-center gap-8">
+      <a
+        matBadge="5"
+        matBadgeSize="large"
+        matBadgeOverlap="false"
+        matBadgePosition="above after"
+        class="custom-badge mt-2 mr-2 no-underline"
+        aria-label="Cart with 5 items"
+      >
+        <mat-icon fontIcon="shopping_cart"></mat-icon>
+      </a>
+
+      <button mat-stroked-button>Login</button>
+      <button mat-stroked-button>Register</button>
+    </div>
+  </div>
+</header>
