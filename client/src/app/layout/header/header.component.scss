@@ -38,3 +38,10 @@
   right: -6px;            /* fine-tune horizontal */
   transform: none;        /* cancel Material’s default translate */
 }
+
+
+a {
+  &.active {
+    color: #7D00FA;
+  }
+}

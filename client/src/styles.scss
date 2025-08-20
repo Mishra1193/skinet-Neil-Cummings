@@ -11,3 +11,7 @@
   background-color: #1976d2, // valid token
   text-color: #fff            // optional, keeps numeral readable
 ));
+
+.mdc-notched-outline__notch {
+  border-right-style: none !important;
+}

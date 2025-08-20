@@ -1,3 +1,4 @@
+@if (products) {
 <div class="flex flex-col gap-4">
   <!-- Paginator on top -->
   <mat-paginator
@@ -88,7 +89,7 @@
   >
   </mat-paginator>
 </div>
-
+}
 <!-- <div class="flex flex-col gap-3">
   <div class="flex justify-end">
     <button mat-stroked-button (click)="openFiltersDialog()">
