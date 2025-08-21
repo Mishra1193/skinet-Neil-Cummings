@@ -1,0 +1,87 @@
+<div class="mx-auto max-w-4xl flex-1 space-y-6 w-full">
+  <!-- main summary card -->
+  <div class="space-y-4 rounded-lg border border-gray-200 bg-white shadow-sm p-4">
+    <p class="text-xl font-semibold">Order Summary</p>
+
+    <div class="space-y-4">
+      <div class="space-y-2">
+        <!-- Subtotal -->
+        <dl class="flex items-center justify-between gap-4">
+          <dt class="font-medium text-gray-500">Subtotal</dt>
+          <dd class="font-medium text-gray-900">
+            {{ cartService.totals()?.subtotal | currency }}
+          </dd>
+        </dl>
+
+        <!-- Discount -->
+        <dl class="flex items-center justify-between gap-4">
+          <dt class="font-medium text-gray-500">Discount</dt>
+          <dd class="font-medium text-green-500">
+            -{{ cartService.totals()?.discount | currency }}
+          </dd>
+        </dl>
+
+        <!-- Delivery Fee -->
+        <dl class="flex items-center justify-between gap-4">
+          <dt class="font-medium text-gray-500">Delivery Fee</dt>
+          <dd class="font-medium text-gray-900">
+            {{ cartService.totals()?.shipping | currency }}
+          </dd>
+        </dl>
+      </div>
+
+      <!-- Total -->
+      <dl class="flex items-center justify-between gap-4 border-t border-gray-200 pt-2">
+        <dt class="font-medium text-gray-500">Total</dt>
+        <dd class="font-medium text-gray-900">
+          {{ cartService.totals()?.total | currency }}
+        </dd>
+      </dl>
+
+      <!-- action buttons -->
+      <div class="flex flex-col gap-2">
+        <!-- solid blue -->
+        <button
+          mat-flat-button
+          [routerLink]="'/checkout'"
+          [style.--mdc-filled-button-container-color]="'#1976d2'"
+          [style.--mdc-filled-button-label-text-color]="'#ffffff'">
+          Check out
+        </button>
+
+        <!-- light blue outline -->
+        <button
+          mat-stroked-button
+          [routerLink]="'/shop'"
+          [style.--mdc-outlined-button-outline-color]="'rgba(25,118,210,0.5)'"
+          [style.--mdc-outlined-button-label-text-color]="'#1976d2'">
+          Continue shopping
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- voucher section -->
+  <div class="space-y-4 rounded-lg border border-gray-200 bg-white shadow-sm p-4">
+    <form class="space-y-2 flex flex-col">
+      <label class="mb-2 block text-sm font-medium" for="voucher">
+        Do you have a voucher code?
+      </label>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Voucher code</mat-label>
+        <!-- NOTE: not self-closing; has matInput; has id/name -->
+        <input matInput id="voucher" name="voucher" type="text" placeholder="Enter code" />
+      </mat-form-field>
+
+      <!-- solid blue -->
+      <button
+        mat-flat-button
+        type="button"
+        [style.--mdc-filled-button-container-color]="'#1976d2'"
+        [style.--mdc-filled-button-label-text-color]="'#ffffff'">
+        Apply code
+      </button>
+    </form>
+  </div>
+</div>

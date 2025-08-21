@@ -1,0 +1,29 @@
+<section>
+  <div class="mx-auto max-w-screen-xl">
+    <div class="flex w-full items-start gap-6 mt-32">
+      <!-- Left: basket items (3/4 width) -->
+      <div class="w-3/4">
+        @if (cartService.cart() && cartService.cart()!.items.length > 0) {
+          @for (item of cartService.cart()!.items; track item.productId) {
+            <app-cart-item
+              [item]="item"
+              (increase)="onIncrease(item.productId)"
+              (decrease)="onDecrease(item.productId)"
+              (remove)="onRemoveLine(item.productId)"
+            />
+          }
+        } @else {
+          <div class="p-8 border rounded text-center text-gray-600">
+            Your cart is empty.
+          </div>
+        }
+      </div>
+
+      <!-- Right: order summary (1/4 width) -->
+      <div class="w-1/4">
+        <!-- Let OrderSummaryComponent read from CartService internally -->
+        <app-order-summary></app-order-summary>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,45 +1,65 @@
-@if(product){
+@if (product) {
 <section class="py-8">
   <div class="max-w-screen-2xl px-4 mx-auto">
     <div class="grid grid-cols-2 gap-8">
+      <!-- Left: Image -->
       <div class="max-w-xl mx-auto">
-        <img
-          class="w-full"
-          src="{{ product.pictureUrl }}"
-          alt="product image"
-        />
+        <img class="w-full" [src]="product.pictureUrl" [alt]="product.name" />
       </div>
+
+      <!-- Right: Details -->
       <div>
-        <h1 class="text-2xl font-semibold text-gray-900 mb-4">
+        <h1 class="text-2xl font-semibold text-gray-900 mb-2">
           {{ product.name }}
         </h1>
+
+        <p class="text-sm text-gray-500 mb-4">
+          You have <strong>{{ quantityInCart }}</strong> of this item in your cart.
+        </p>
+
         <div class="mt-4 items-center gap-4 flex">
           <p class="text-3xl font-bold text-gray-900">
             {{ product.price | currency }}
           </p>
         </div>
-        <div class="flex gap-4 mt-6">
-          <button max-flat-button class="match-input-height">
+
+        <div class="flex flex-wrap items-center gap-4 mt-6">
+          <!-- Add/Update Cart -->
+          <button
+            mat-raised-button
+            class="match-input-height"
+            (click)="updateCart()"
+            [disabled]="quantity === quantityInCart"
+          >
             <mat-icon>shopping_cart</mat-icon>
-            Add to Cart
+            {{ getButtonText() }}
           </button>
+
+          <!-- Buy Now (placeholder) -->
           <button
             class="px-4 py-2 bg-gray-200 text-gray-900 rounded hover:bg-gray-300"
           >
             Buy Now
           </button>
+
+          <!-- Quantity -->
           <mat-form-field appearance="outline" class="flex">
             <mat-label>Quantity</mat-label>
-            <input matInput type="number" min="1" value="1" />
+            <input
+              matInput
+              type="number"
+              min="0"
+              [(ngModel)]="quantity"
+            />
           </mat-form-field>
         </div>
 
         <mat-divider></mat-divider>
-        <p class="mt-6 text-gray-500">
-          {{product.description }}
-        </p>
 
-        </div>
+        <p class="mt-6 text-gray-500">
+          {{ product.description }}
+        </p>
+      </div>
     </div>
   </div>
 </section>

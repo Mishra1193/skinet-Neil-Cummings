@@ -19,12 +19,14 @@
     <!-- RIGHT: CART + AUTH BUTTONS -->
     <div class="flex items-center gap-8">
       <a
-        matBadge="5"
+        routerLink="/cart"
+        routerLinkActive="active"
+        [matBadge]="cartService.itemCount()"
         matBadgeSize="large"
         matBadgeOverlap="false"
         matBadgePosition="above after"
         class="custom-badge mt-2 mr-2 no-underline"
-        aria-label="Cart with 5 items"
+        [attr.aria-label]="'Cart with ' + cartService.itemCount() + ' items'"
       >
         <mat-icon fontIcon="shopping_cart"></mat-icon>
       </a>

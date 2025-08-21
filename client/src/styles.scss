@@ -13,6 +13,27 @@
 
 .mdc-notched-outline__notch { border-right-style: none !important; }
 
+/* === Force button colors (no theming API needed) === */
+/* Solid blue for mat-flat-button (Check out, Apply code) */
+.mat-mdc-unelevated-button.mat-primary {
+  --mdc-filled-button-container-color: #1976d2; /* blue */
+  --mdc-filled-button-label-text-color: #ffffff;
+  --mdc-filled-button-focus-state-layer-color: #1976d2;
+  --mdc-filled-button-hover-state-layer-color: #1976d2;
+  --mdc-filled-button-pressed-state-layer-color: #1976d2;
+}
+
+/* Light blue outline for mat-stroked-button (Continue shopping) */
+.mat-mdc-outlined-button.mat-primary {
+  --mdc-outlined-button-outline-color: rgba(25, 118, 210, 0.5);
+  --mdc-outlined-button-label-text-color: #1976d2;
+  --mdc-outlined-button-focus-state-layer-color: #1976d2;
+  --mdc-outlined-button-hover-state-layer-color: #1976d2;
+  --mdc-outlined-button-pressed-state-layer-color: #1976d2;
+}
+
+
+
 /* Primary way (MDC CSS variables on the container via panelClass) */
 .snack-error {
   --mdc-snackbar-container-color: #d32f2f;
