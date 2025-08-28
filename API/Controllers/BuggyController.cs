@@ -1,4 +1,6 @@
+using System.Security.Claims;
 using API.Dtos;                     // ✅ add this
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
@@ -33,6 +35,16 @@ namespace API.Controllers
         public IActionResult PostValidationError([FromBody] DemoDto dto)
         {
             return Ok("Valid");
+        }
+
+        [Authorize]
+        [HttpGet("secret")]
+        public IActionResult GetSecret()
+        {
+            var name = User.FindFirst(ClaimTypes.Name)?.Value;
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            return Ok($"Hello {name} with the id of {userId}");
         }
     }
 }
