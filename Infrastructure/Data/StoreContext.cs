@@ -1,4 +1,8 @@
 using Core.Entities;
+<<<<<<< HEAD
+=======
+using Core.Entities.Identity;
+>>>>>>> 808235488e37d5290f340be4b215e065c4e1be6e
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
